@@ -1,0 +1,9 @@
+{% block content %}
+    <h2>Find Flight</h2>
+    <form method="GET" class="" action="{% url 'search_results' %}">
+        
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-secondary">Save</button>
+    </form>
+{% endblock %}
+
