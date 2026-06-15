@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Umrah Flights - Book Your Journey{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                fontFamily: {
+                    sans: ['Breite Grotesk', 'system-ui', 'sans-serif'],
+                    mono: ['Commit Mono', 'ui-monospace', 'monospace'],
+                },
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd',
+                            300: '#7dd3fc', 400: '#38bdf8', 500: '#0ea5e9',
+                            600: '#0284c7', 700: '#0369a1', 800: '#075985', 900: '#0c3d66',
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/umrahfly.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="site-theme {% block body_class %}{% endblock %}">
+
+    {% block site_background %}
+    <div class="site-bg" aria-hidden="true">
+        <video class="site-bg-video" autoplay muted loop playsinline preload="auto">
+            <source src="{% static 'videos/home-bg.mp4' %}" type="video/mp4">
+        </video>
+        <div class="site-bg-overlay"></div>
+    </div>
+    {% endblock %}
+
+    <nav class="sticky top-0 z-50 site-nav {% block nav_class %}{% endblock %}">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="{% url 'home' %}" class="nav-logo flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <i class="ph ph-airplane text-2xl"></i>
+                    <span class="text-lg font-600">UmrahFly</span>
+                </a>
+
+                <div class="flex items-center gap-4">
+                    {% if user.is_authenticated %}
+                        <div class="nav-user flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium">
+                            <i class="ph ph-user-circle text-base"></i>
+                            {{ user.username }}
+                        </div>
+                        <a href="{% url 'logout' %}" class="text-sm font-medium flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/10 rounded-md transition-colors">
+                            <i class="ph ph-sign-out text-base"></i>
+                            Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-sm font-medium hover:opacity-80 transition-opacity">
+                            Login
+                        </a>
+                        <a href="{% url 'register' %}" class="nav-register text-sm font-medium px-3 py-1.5 rounded-md transition-colors">
+                            Register
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="fixed top-20 right-4 z-50 space-y-2" id="messagesContainer">
+            {% for message in messages %}
+                <div class="site-alert flex items-center gap-3 px-4 py-3 rounded-lg text-sm shadow-lg">
+                    {% if message.tags == 'success' %}
+                        <i class="ph ph-check-circle text-base text-green-400"></i>
+                    {% elif message.tags == 'error' or message.tags == 'danger' %}
+                        <i class="ph ph-warning-circle text-base text-red-400"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="ph ph-warning text-base text-yellow-400"></i>
+                    {% else %}
+                        <i class="ph ph-info text-base text-blue-400"></i>
+                    {% endif %}
+                    <span>{{ message }}</span>
+                    <button type="button" class="ml-auto opacity-60 hover:opacity-100 transition-opacity" onclick="this.closest('div').remove()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+        <script>
+            setTimeout(() => {
+                document.getElementById('messagesContainer')?.querySelectorAll('div').forEach(alert => {
+                    setTimeout(() => alert.remove(), 5000);
+                });
+            }, 100);
+        </script>
+    {% endif %}
+
+    <main class="{% block main_class %}site-main{% endblock %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+    <footer class="site-footer py-6">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p class="text-sm">&copy; 2026 UmrahFly — Book your sacred journey with ease</p>
+                <div class="flex gap-4 text-lg">
+                    <a href="#" class="transition-colors"><i class="ph ph-facebook-logo"></i></a>
+                    <a href="#" class="transition-colors"><i class="ph ph-twitter-logo"></i></a>
+                    <a href="#" class="transition-colors"><i class="ph ph-instagram-logo"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <script src="{% static 'js/umrahfly.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,569 @@
+/* UmrahFly — global theme (homepage standard) */
+
+* {
+    font-family: var(--font-primary);
+}
+
+/* Video background */
+.site-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.site-bg-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+}
+
+.site-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        105deg,
+        rgba(15, 23, 42, 0.4) 0%,
+        rgba(15, 23, 42, 0.1) 38%,
+        rgba(15, 23, 42, 0.08) 52%,
+        rgba(15, 23, 42, 0.28) 72%,
+        rgba(15, 23, 42, 0.48) 100%
+    );
+    pointer-events: none;
+}
+
+/* Layout */
+.site-main {
+    min-height: calc(100vh - 4rem);
+    position: relative;
+}
+
+.page-shell {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 2rem clamp(1rem, 4vw, 2rem) 3rem;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+    margin-bottom: 0.5rem;
+}
+
+.page-header p,
+.page-header a {
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.page-header a:hover {
+    color: #fff;
+}
+
+/* Navigation */
+.site-nav {
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.site-nav > div {
+    max-width: none !important;
+    padding-left: clamp(1.5rem, 4vw, 4rem);
+    padding-right: clamp(1.5rem, 4vw, 4rem);
+}
+
+.site-nav a,
+.site-nav span {
+    color: #fff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.site-nav .nav-logo i,
+.site-nav .nav-logo span {
+    color: #fff !important;
+}
+
+.site-nav .nav-user {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: none !important;
+}
+
+.site-nav .nav-register {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+.site-nav .nav-register:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.site-nav a:hover {
+    opacity: 0.9;
+}
+
+/* Glass surfaces */
+.glass,
+.glass-sm,
+.glass-card,
+.apple-glass {
+    border: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card,
+.apple-glass {
+    position: relative;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(80px) saturate(120%);
+    -webkit-backdrop-filter: blur(80px) saturate(120%);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.05);
+}
+
+.glass-sm {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(40px) saturate(120%);
+    -webkit-backdrop-filter: blur(40px) saturate(120%);
+    border: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(60px) saturate(120%);
+    -webkit-backdrop-filter: blur(60px) saturate(120%);
+}
+
+/* Text inside glass panels */
+.glass-card h1,
+.glass-card h2,
+.glass-card h3,
+.apple-glass h1,
+.apple-glass h2,
+.apple-glass h3 {
+    color: #fff;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+}
+
+.glass-card p,
+.glass-card label,
+.apple-glass p,
+.apple-glass label {
+    color: rgba(255, 255, 255, 0.75);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.glass-card .text-muted,
+.apple-glass .text-muted {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.glass-card a,
+.apple-glass a {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+}
+
+.glass-card a:hover,
+.apple-glass a:hover {
+    color: #fff;
+}
+
+.glass-card .divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.12);
+    flex: 1;
+}
+
+/* Inputs */
+.glass-input,
+.apple-glass input[type="text"],
+.apple-glass input[type="email"],
+.apple-glass input[type="password"],
+.apple-glass input[type="number"] {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #fff;
+    font-family: var(--font-secondary);
+    transition: background 0.2s ease, border-color 0.2s ease;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.glass-input::placeholder,
+.apple-glass input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.glass-input:hover,
+.apple-glass input:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.glass-input:focus,
+.apple-glass input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+}
+
+/* White button */
+.btn-white,
+.apple-btn {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #0369a1;
+    background: #fff;
+    border: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-family: var(--font-secondary);
+    text-decoration: none;
+}
+
+.btn-white:hover,
+.apple-btn:hover {
+    background: #f8fafc;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16);
+    transform: translateY(-1px);
+}
+
+.btn-white:active,
+.apple-btn:active {
+    background: #f1f5f9;
+    transform: translateY(0);
+}
+
+.btn-white--sm {
+    width: auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+}
+
+/* Custom glass dropdowns */
+.glass-select {
+    position: relative;
+}
+
+.glass-select-native {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.glass-select-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    font-family: var(--font-secondary);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.glass-select-trigger:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.glass-select.is-open .glass-select-trigger {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.glass-select-trigger i {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.glass-select.is-open .glass-select-trigger i {
+    transform: rotate(180deg);
+}
+
+.glass-select-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 60;
+    padding: 0.35rem;
+    border-radius: 0.85rem;
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(48px) saturate(140%);
+    -webkit-backdrop-filter: blur(48px) saturate(140%);
+    border: 0.5px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+    max-height: 12rem;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px) scale(0.98);
+    transform-origin: top center;
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+
+.glass-select.is-open .glass-select-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.glass-select-option {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    border: none;
+    border-radius: 0.55rem;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    font-family: var(--font-secondary);
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.glass-select-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.glass-select-option.is-selected {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+}
+
+.glass-select.is-error .glass-select-trigger {
+    border-color: rgba(248, 113, 113, 0.6);
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.2);
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+}
+
+.badge-low {
+    background: rgba(34, 197, 94, 0.25);
+    color: #bbf7d0;
+}
+
+.badge-mid {
+    background: rgba(245, 158, 11, 0.25);
+    color: #fde68a;
+}
+
+.badge-high {
+    background: rgba(239, 68, 68, 0.25);
+    color: #fecaca;
+}
+
+/* Result / flight cards */
+.result-card,
+.glass-card {
+    overflow: hidden;
+}
+
+.card-row {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+
+.card-row:last-child {
+    border-bottom: none;
+}
+
+.result-card {
+    display: block;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+.result-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+.result-card h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.result-card .price {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* AI section */
+.ai-action-btn {
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    text-align: left;
+    transition: background 0.2s ease;
+}
+
+.ai-action-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.ai-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ai-action-btn i {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+#ai-result-content {
+    color: rgba(255, 255, 255, 0.88);
+}
+
+#ai-result-content h3,
+#ai-result-content h4 {
+    color: #fff;
+}
+
+#ai-result-content strong {
+    color: #fff;
+}
+
+/* Footer */
+.site-footer {
+    background: rgba(255, 255, 255, 0.06) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: none !important;
+    border-top: 0.5px solid rgba(255, 255, 255, 0.08) !important;
+    margin-top: 0;
+}
+
+.site-footer p,
+.site-footer a {
+    color: rgba(255, 255, 255, 0.65) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.site-footer a:hover {
+    color: #fff !important;
+}
+
+/* Messages on video bg */
+.site-alert {
+    background: rgba(15, 23, 42, 0.75) !important;
+    backdrop-filter: blur(24px);
+    border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+}
+
+/* Auth centered layout */
+.auth-shell {
+    min-height: calc(100vh - 4rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 26rem;
+    padding: 2rem;
+}
+
+/* Error text */
+.field-error {
+    font-size: 0.75rem;
+    color: #fca5a5;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    font-family: var(--font-secondary);
+}
+
+/* Secondary font — Commit Mono */
+.font-secondary,
+.glass-card label,
+.apple-glass label,
+.glass-input,
+.apple-glass input,
+.glass-select-trigger,
+.glass-select-option,
+.badge,
+.result-card .price,
+.nav-user,
+.site-footer p,
+.field-error,
+#ai-result-content,
+#ai-result-content code {
+    font-family: var(--font-secondary);
+}
+
+.glass-select-option,
+.glass-input,
+.apple-glass input {
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+}
+
+.badge,
+.result-card .price {
+    letter-spacing: -0.03em;
+}
