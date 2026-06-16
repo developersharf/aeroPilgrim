@@ -1,32 +1,294 @@
-{% block content %}
-    <!DOCTYPE html>
-<html>
-<head>
-    <title>
-        Flight Search  AYON
-    </title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block body_class %}home-page{% endblock %}
+{% block main_class %}home-main{% endblock %}
+{% block footer %}{% endblock %}
 
-    <h1>
-        Search Flights
-    </h1>
+{% block extra_css %}
+<style>
+    body.home-page {
+        height: 100vh;
+        overflow: hidden;
+    }
 
-    <form
-        method="GET"
-        action="{% url 'search_results' %}"
-    >
+    .home-main {
+        height: calc(100vh - 4rem);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
 
-        {{ form.as_p }}
+    .home-shell {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        padding: 0.5rem clamp(1.5rem, 4vw, 4rem) 1rem;
+        gap: 1rem;
+    }
 
-        <button type="submit">
-            Search
-        </button>
+    .home-grid {
+        display: grid;
+        grid-template-columns: 1fr minmax(24rem, 34rem);
+        gap: 2rem clamp(2rem, 5vw, 4rem);
+        align-items: center;
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+    }
 
-    </form>
+    .home-left {
+        display: flex;
+        flex-direction: column;
+        gap: 1.75rem;
+        width: 100%;
+    }
 
-</body>
-</html>
+    .home-hero h1 {
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1.15;
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .home-hero p {
+        font-size: clamp(0.95rem, 1.6vw, 1.25rem);
+        max-width: 36rem;
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .home-usps {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+
+    .home-usp {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .home-usp-icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    .home-usp h3 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #fff;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .home-usp p {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.82);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    }
+
+    .home-right {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        width: 100%;
+    }
+
+    .home-right .apple-glass {
+        min-width: 30rem;
+        max-width: 54rem;
+        padding: 20px 20px;
+    }
+
+    .home-routes h2 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .home-routes .glass-sm {
+        color: #fff;
+    }
+
+    .home-routes .glass-sm h3 {
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .home-routes .glass-sm p {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 0.625rem;
+    }
+
+    .home-routes .glass-sm i {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    @media (max-width: 900px) {
+        .home-grid {
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+            overflow-y: auto;
+        }
+        body.home-page { overflow: auto; }
+        .home-main { height: auto; min-height: calc(100vh - 4rem); overflow: visible; }
+        .home-left { text-align: center; align-items: center; }
+        .home-hero p { margin: 0 auto; }
+        .home-usps { max-width: 22rem; width: 100%; }
+        .home-right { justify-content: center; }
+        .home-right .apple-glass { max-width: 100%; }
+    }
+
+    @media (max-height: 720px) and (min-width: 901px) {
+        .home-left { gap: 1rem; }
+        .home-usps { gap: 0.5rem; }
+        .home-routes { display: none; }
+    }
+</style>
 {% endblock %}
 
+{% block title %}Search Flights - Umrah Flights{% endblock %}
+
+{% block content %}
+<div class="home-shell">
+    <div class="home-grid">
+        <div class="home-left">
+            <div class="home-hero">
+                <h1>Find Your Perfect Journey</h1>
+                <p class="mt-3 leading-relaxed">Search and compare flight prices for your sacred pilgrimage</p>
+            </div>
+
+            <div class="home-usps">
+                <div class="home-usp">
+                    <div class="home-usp-icon"><i class="ph ph-medal"></i></div>
+                    <div>
+                        <h3>Best Prices</h3>
+                        <p>Find the best deals for your journey</p>
+                    </div>
+                </div>
+                <div class="home-usp">
+                    <div class="home-usp-icon"><i class="ph ph-check-circle"></i></div>
+                    <div>
+                        <h3>Easy Booking</h3>
+                        <p>Simple and secure process</p>
+                    </div>
+                </div>
+                <div class="home-usp">
+                    <div class="home-usp-icon"><i class="ph ph-headphones"></i></div>
+                    <div>
+                        <h3>24/7 Support</h3>
+                        <p>Always here to help</p>
+                    </div>
+                </div>
+                <div class="home-usp">
+                    <div class="home-usp-icon"><i class="ph ph-shield-check"></i></div>
+                    <div>
+                        <h3>Secure</h3>
+                        <p>Your data is encrypted</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="home-right">
+            <div class="apple-glass">
+                <h2 class="text-lg font-600 mb-4 flex items-center gap-2">
+                    <i class="ph ph-magnifying-glass"></i>
+                    Search Flights
+                </h2>
+
+                <form method="GET" action="{% url 'search_results' %}" class="space-y-3" id="searchForm" data-validate-selects>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div class="space-y-1">
+                            <label for="{{ form.city_departure.id_for_label }}" class="text-xs font-500 flex items-center gap-1.5">
+                                <i class="ph ph-map-pin"></i> From
+                            </label>
+                            <div class="relative">{{ form.city_departure }}</div>
+                        </div>
+                        <div class="space-y-1">
+                            <label for="{{ form.city_arrival.id_for_label }}" class="text-xs font-500 flex items-center gap-1.5">
+                                <i class="ph ph-airplane-landing"></i> To
+                            </label>
+                            <div class="relative">{{ form.city_arrival }}</div>
+                        </div>
+                        <div class="space-y-1">
+                            <label for="{{ form.stay_days.id_for_label }}" class="text-xs font-500 flex items-center gap-1.5">
+                                <i class="ph ph-calendar-dots"></i> Duration
+                            </label>
+                            <div class="relative">{{ form.stay_days }}</div>
+                        </div>
+                        <div class="space-y-1">
+                            <label for="{{ form.timespan_to_search.id_for_label }}" class="text-xs font-500 flex items-center gap-1.5">
+                                <i class="ph ph-hourglass-medium"></i> Period
+                            </label>
+                            <div class="relative">{{ form.timespan_to_search }}</div>
+                        </div>
+                    </div>
+                    <button type="submit" class="apple-btn mt-2">
+                        <i class="ph ph-magnifying-glass"></i>
+                        Search Flights
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="home-routes">
+        <h2>Popular Routes</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <a href="?city_departure=DAC&city_arrival=JED&stay_days=7&timespan_to_search=30"
+               class="glass-sm rounded-lg p-2.5 transition-all flex items-center gap-2.5 hover:bg-white/10">
+                <div class="flex items-center gap-1 text-sm shrink-0">
+                    <i class="ph ph-airplane-takeoff"></i>
+                    <i class="ph ph-arrow-right text-xs"></i>
+                    <i class="ph ph-airplane-landing"></i>
+                </div>
+                <div>
+                    <h3>Dhaka → Jeddah</h3>
+                    <p>7 Days Stay</p>
+                </div>
+            </a>
+            <a href="?city_departure=DAC&city_arrival=MED&stay_days=10&timespan_to_search=30"
+               class="glass-sm rounded-lg p-2.5 transition-all flex items-center gap-2.5 hover:bg-white/10">
+                <div class="flex items-center gap-1 text-sm shrink-0">
+                    <i class="ph ph-airplane-takeoff"></i>
+                    <i class="ph ph-arrow-right text-xs"></i>
+                    <i class="ph ph-airplane-landing"></i>
+                </div>
+                <div>
+                    <h3>Dhaka → Medina</h3>
+                    <p>10 Days Stay</p>
+                </div>
+            </a>
+            <a href="?city_departure=CGP&city_arrival=JED&stay_days=15&timespan_to_search=90"
+               class="glass-sm rounded-lg p-2.5 transition-all flex items-center gap-2.5 hover:bg-white/10">
+                <div class="flex items-center gap-1 text-sm shrink-0">
+                    <i class="ph ph-airplane-takeoff"></i>
+                    <i class="ph ph-arrow-right text-xs"></i>
+                    <i class="ph ph-airplane-landing"></i>
+                </div>
+                <div>
+                    <h3>Chattogram → Jeddah</h3>
+                    <p>15 Days Stay</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

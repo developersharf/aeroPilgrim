@@ -60,3 +60,8 @@ class Search(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True
     )
+    
+    
+    
+    def __str__(self):
+        return f"{self.city_departure} to {self.city_arrival} in {self.timespan_to_search} days"

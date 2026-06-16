@@ -1,28 +1,136 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.utils import timezone
-from datetime import timedelta
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from datetime import timedelta, datetime
+import json
 
 from .models import Search
-from .forms import SearchForm
+from .forms import SearchForm, RegistrationForm, LoginForm
 from .services.flight_api import get_flight_data
+from .services.ai_service import AI_ACTIONS, generate_ai_response
+
+
+def _city_label(code):
+    return dict(Search.CITY_CHOICES).get(code, code)
+
+
+def _normalize_flight(day_obj):
+    return {
+        "flight_date": day_obj.get("day"),
+        "price": day_obj.get("price"),
+        "price_group": day_obj.get("group", "Standard"),
+    }
+
+
+def _get_flight_from_search(search, flight_date):
+    days = search.api_response.get("data", {}).get("flights", {}).get("days", [])
+    for day in days:
+        if day.get("day") == flight_date:
+            return _normalize_flight(day)
+    return None
+
+
+def _build_trip_context(search, flight):
+    return_date = None
+    if flight["flight_date"]:
+        depart = datetime.strptime(flight["flight_date"], "%Y-%m-%d").date()
+        return_date = depart + timedelta(days=search.stay_days)
+
+    return {
+        "city_departure": search.city_departure,
+        "city_arrival": search.city_arrival,
+        "city_departure_label": _city_label(search.city_departure),
+        "city_arrival_label": _city_label(search.city_arrival),
+        "stay_days": search.stay_days,
+        "timespan_to_search": search.timespan_to_search,
+        "flight_date": flight["flight_date"],
+        "price": flight["price"],
+        "price_group": flight["price_group"],
+        "return_date": str(return_date) if return_date else None,
+    }
+
+
+def registerView(request):
+    """Handle user registration"""
+    if request.user.is_authenticated:
+        return redirect('home')
+    
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Registration successful! You are now logged in.')
+            return redirect('home')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = RegistrationForm()
+    
+    return render(request, 'core/register.html', {'form': form})
+
+
+def loginView(request):
+    """Handle user login"""
+    if request.user.is_authenticated:
+        return redirect('home')
+    
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'Welcome back, {username}!')
+                return redirect('home')
+            else:
+                messages.error(request, 'Invalid username or password.')
+    else:
+        form = LoginForm()
+    
+    return render(request, 'core/login.html', {'form': form})
+
+
+def logoutView(request):
+    """Handle user logout"""
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('home')
 
 
 def searchView(request):
-
+    """Display search form on home page"""
     form = SearchForm()
-
     return render(request, "core/home.html", {"form": form})
 
 
+@login_required(login_url='login')
 def searchResults(request):
+    """Display search results - only accessible to logged-in users"""
 
     city_departure = request.GET.get("city_departure")
     city_arrival = request.GET.get("city_arrival")
 
-    stay_days = int(request.GET.get("stay_days"))
-    timespan = int(request.GET.get("timespan_to_search"))
+    if not city_departure or not city_arrival:
+        messages.error(request, "Please complete your search first.")
+        return redirect("home")
 
-    # Get latest matching search
+    try:
+        stay_days = int(request.GET.get("stay_days", 7))
+        timespan = int(request.GET.get("timespan_to_search", 30))
+    except (TypeError, ValueError):
+        messages.error(request, "Invalid search parameters.")
+        return redirect("home")
+
     search = Search.objects.filter(
         city_departure=city_departure,
         city_arrival=city_arrival,
@@ -30,31 +138,19 @@ def searchResults(request):
         timespan_to_search=timespan,
     ).order_by("-created_at").first()
 
-    # Cache expiry rule (1 day)
-    one_day_ago = timezone.now() - timedelta(days=1)
+    four_days_ago = timezone.now() - timedelta(days=100)
 
     cache_valid = (
         search
         and search.api_response
-        and search.created_at >= one_day_ago
+        and search.created_at >= four_days_ago
     )
 
     if cache_valid:
-
-        print("FROM CACHE")
-
         data = search.api_response
-
     else:
+        data = get_flight_data(city_departure, city_arrival)
 
-        print("FROM API")
-
-        data = get_flight_data(
-            city_departure,
-            city_arrival
-        )
-
-        # Optional cleanup: remove old duplicates
         Search.objects.filter(
             city_departure=city_departure,
             city_arrival=city_arrival,
@@ -70,13 +166,70 @@ def searchResults(request):
             api_response=data,
         )
 
-    # Extract + clean results
     days = data["data"]["flights"]["days"]
-
-    top_10 = sorted(days, key=lambda x: x["price"])[:10]
+    top_results = [_normalize_flight(d) for d in sorted(days, key=lambda x: x["price"])[:5]]
 
     return render(request, "core/search_results.html", {
-        "results": top_10,
-        "city_departure": city_departure,
-        "city_arrival": city_arrival,
+        "results": top_results,
+        "search": search,
+        "city_departure": _city_label(city_departure),
+        "city_arrival": _city_label(city_arrival),
+        "stay_days": stay_days,
+    })
+
+
+@login_required(login_url='login')
+def flightDetail(request, search_id, flight_date):
+    """Show full details for a selected flight date"""
+    search = get_object_or_404(Search, pk=search_id)
+    flight = _get_flight_from_search(search, flight_date)
+
+    if not flight:
+        messages.error(request, "This flight option is no longer available.")
+        return redirect(
+            f"/search/?city_departure={search.city_departure}"
+            f"&city_arrival={search.city_arrival}"
+            f"&stay_days={search.stay_days}"
+            f"&timespan_to_search={search.timespan_to_search}"
+        )
+
+    trip = _build_trip_context(search, flight)
+
+    return render(request, "core/flight_detail.html", {
+        "search": search,
+        "flight": flight,
+        "trip": trip,
+        "ai_actions": AI_ACTIONS,
+        "city_departure": trip["city_departure_label"],
+        "city_arrival": trip["city_arrival_label"],
+    })
+
+
+@login_required(login_url='login')
+@require_POST
+def aiAction(request, search_id, flight_date):
+    """Generate AI response for a trip action button"""
+    search = get_object_or_404(Search, pk=search_id)
+    flight = _get_flight_from_search(search, flight_date)
+
+    if not flight:
+        return JsonResponse({"success": False, "error": "Flight not found."}, status=404)
+
+    try:
+        body = json.loads(request.body)
+        action = body.get("action")
+    except json.JSONDecodeError:
+        action = request.POST.get("action")
+
+    if action not in AI_ACTIONS:
+        return JsonResponse({"success": False, "error": "Invalid action."}, status=400)
+
+    context = _build_trip_context(search, flight)
+    content = generate_ai_response(action, context)
+
+    return JsonResponse({
+        "success": True,
+        "action": action,
+        "label": AI_ACTIONS[action]["label"],
+        "content": content,
     })
