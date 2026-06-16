@@ -282,6 +282,38 @@ body.site-theme {
     font-size: 0.8125rem;
 }
 
+/* Keep button text readable — override white link styles in glass/page areas */
+.glass-card a.btn-white,
+.glass-card .btn-white,
+.page-header a.btn-white,
+.page-header .btn-white,
+.apple-glass .btn-white,
+.apple-glass .apple-btn,
+.btn-white,
+.apple-btn,
+button.btn-white,
+button.apple-btn {
+    color: #0369a1;
+}
+
+.glass-card a.btn-white:hover,
+.glass-card .btn-white:hover,
+.page-header a.btn-white:hover,
+.page-header .btn-white:hover,
+.apple-glass .btn-white:hover,
+.apple-glass .apple-btn:hover,
+.btn-white:hover,
+.apple-btn:hover {
+    color: #0284c7;
+}
+
+.btn-white i,
+.btn-white:hover i,
+.apple-btn i,
+.apple-btn:hover i {
+    color: inherit;
+}
+
 /* Custom glass dropdowns */
 .glass-select {
     position: relative;
