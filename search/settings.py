@@ -15,28 +15,48 @@ from pathlib import Path
 
 # settings.py
 import os
+
+import dj_database_url
+from decouple import AutoConfig, Csv
 from dotenv import load_dotenv
-
-load_dotenv()  # Load .env file
-
-API_KEY = os.getenv("FLIGHT_API_KEY")
-API_HOST = os.getenv("FLIGHT_API_HOST")
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Local development convenience: load `.env` if present.
+# In Railway/production, environment variables come from the platform.
+load_dotenv(BASE_DIR / ".env")
+config = AutoConfig(search_path=BASE_DIR)
+
+FLIGHT_API_KEY = config("FLIGHT_API_KEY", default="")
+FLIGHT_API_HOST = config("FLIGHT_API_HOST", default="")
+# Backwards-compatible names used by existing code.
+API_KEY = FLIGHT_API_KEY
+API_HOST = FLIGHT_API_HOST
+OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
+AI_MODEL = config("AI_MODEL", default="gpt-4o-mini")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7cqkz_2($c59(iz8f_zsvgvoqq=m!*&%@ju1z9c1^=82uck53u'
+SECRET_KEY = config("SECRET_KEY", default="django-insecure-change-me")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS",
+    default="localhost,127.0.0.1",
+    cast=Csv(),
+)
+
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="",
+    cast=Csv(),
+)
 
 
 # Application definition
@@ -53,6 +73,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -91,6 +112,14 @@ DATABASES = {
     }
 }
 
+DATABASE_URL = config("DATABASE_URL", default="")
+if DATABASE_URL:
+    DATABASES["default"] = dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=config("DB_SSL_REQUIRE", default=True, cast=bool),
+    )
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -127,7 +156,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [BASE_DIR / "search" / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 
 
