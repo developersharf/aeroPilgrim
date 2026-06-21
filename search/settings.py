@@ -41,6 +41,8 @@ API_KEY = FLIGHT_API_KEY
 API_HOST = FLIGHT_API_HOST
 OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
 AI_MODEL = config("AI_MODEL", default="gpt-4o-mini")
+N8N_CHAT_WEBHOOK_URL = config("N8N_CHAT_WEBHOOK_URL", default="")
+BOT_API_KEY = config("BOT_API_KEY", default="")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -75,6 +77,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.n8n_chat",
             ],
         },
     },
