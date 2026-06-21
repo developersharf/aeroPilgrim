@@ -121,10 +121,6 @@ def searchView(request):
     return render(request, "core/home.html", {"form": form})
 
 
-
-
-
-
 @login_required(login_url='login')
 def searchResults(request):
     """Display search results - only accessible to logged-in users"""
@@ -189,6 +185,8 @@ def searchResults(request):
     })
 
 
+
+
 @login_required(login_url='login')
 def flightDetail(request, search_id, flight_date):
     """Show full details for a selected flight date"""
@@ -214,6 +212,10 @@ def flightDetail(request, search_id, flight_date):
         "city_departure": trip["city_departure_label"],
         "city_arrival": trip["city_arrival_label"],
     })
+
+
+
+
 
 
 @login_required(login_url='login')
@@ -250,7 +252,7 @@ def _check_bot_api_key(request):
     sent_key = request.headers.get("X-Bot-Api-Key")
     return sent_key and sent_key == settings.BOT_API_KEY
 
-
+#this is the bot search endpoint
 @csrf_exempt
 @require_GET
 def botSearch(request):
