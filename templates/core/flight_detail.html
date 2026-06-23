@@ -84,6 +84,47 @@
             </div>
         </div>
 
+        <div class="glass-card overflow-hidden trip-chat" id="trip-chat">
+            <div class="card-row flex flex-col sm:flex-row sm:items-center gap-3 border-b border-white/10">
+                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                    <i class="ph ph-chats-circle text-xl text-white"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-lg font-600">Trip Assistant</h3>
+                    <p class="text-sm text-muted">
+                        Ask about this flight, cheaper dates, hotels, visa, or your itinerary — answers use your saved search data.
+                    </p>
+                </div>
+            </div>
+
+            <div id="trip-chat-messages" class="trip-chat-messages" aria-live="polite"></div>
+
+            <div id="trip-chat-typing" class="trip-chat-typing hidden">
+                <i class="ph ph-spinner animate-spin"></i>
+                <span>Assistant is thinking...</span>
+            </div>
+
+            <div class="trip-chat-suggestions" id="trip-chat-suggestions">
+                <button type="button" class="trip-chat-suggestion" data-prompt="Are there cheaper dates for this route?">Cheaper dates</button>
+                <button type="button" class="trip-chat-suggestion" data-prompt="Suggest budget hotels near the Haram">Hotels</button>
+                <button type="button" class="trip-chat-suggestion" data-prompt="What visa documents do I need?">Visa help</button>
+                <button type="button" class="trip-chat-suggestion" data-prompt="Plan a day-by-day itinerary for my stay">Itinerary</button>
+            </div>
+
+            <form id="trip-chat-form" class="trip-chat-compose">
+                <textarea id="trip-chat-input"
+                          class="glass-input trip-chat-input"
+                          rows="1"
+                          placeholder="Ask about this trip..."
+                          maxlength="1000"
+                          required></textarea>
+                <button type="submit" id="trip-chat-send" class="btn-white btn-white--sm trip-chat-send">
+                    <i class="ph ph-paper-plane-tilt"></i>
+                    Send
+                </button>
+            </form>
+        </div>
+
         <div class="glass-card p-4 sm:p-6">
             <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
                 <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
@@ -137,10 +178,19 @@
 <script>
     const csrfToken = '{{ csrf_token }}';
     const aiUrl = '{% url "ai_action" search.id flight.flight_date %}';
+    const chatUrl = '{% url "trip_chat" search.id flight.flight_date %}';
     const panel = document.getElementById('ai-result-panel');
     const loading = document.getElementById('ai-loading');
     const resultTitle = document.getElementById('ai-result-title');
     const resultContent = document.getElementById('ai-result-content');
+
+    const chatMessages = document.getElementById('trip-chat-messages');
+    const chatForm = document.getElementById('trip-chat-form');
+    const chatInput = document.getElementById('trip-chat-input');
+    const chatSend = document.getElementById('trip-chat-send');
+    const chatTyping = document.getElementById('trip-chat-typing');
+    const chatSuggestions = document.getElementById('trip-chat-suggestions');
+    const chatHistory = [];
 
     function simpleMarkdown(text) {
         return text
@@ -160,6 +210,99 @@
             .replace(/\n\n/g, '<br><br>')
             .replace(/\n/g, '<br>');
     }
+
+    function appendChatMessage(role, content, html = false) {
+        const wrap = document.createElement('div');
+        wrap.className = `trip-chat-message trip-chat-message--${role}`;
+
+        const avatar = document.createElement('div');
+        avatar.className = 'trip-chat-avatar';
+        avatar.innerHTML = role === 'user'
+            ? '<i class="ph ph-user"></i>'
+            : '<i class="ph ph-sparkle"></i>';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'trip-chat-bubble';
+        if (html) {
+            bubble.innerHTML = content;
+        } else {
+            bubble.textContent = content;
+        }
+
+        wrap.appendChild(avatar);
+        wrap.appendChild(bubble);
+        chatMessages.appendChild(wrap);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function setChatBusy(busy) {
+        chatInput.disabled = busy;
+        chatSend.disabled = busy;
+        chatTyping.classList.toggle('hidden', !busy);
+        chatSuggestions.querySelectorAll('button').forEach(btn => { btn.disabled = busy; });
+    }
+
+    async function sendChatMessage(message) {
+        const trimmed = message.trim();
+        if (!trimmed) return;
+
+        appendChatMessage('user', trimmed);
+        chatHistory.push({ role: 'user', content: trimmed });
+        chatInput.value = '';
+        setChatBusy(true);
+
+        try {
+            const response = await fetch(chatUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({
+                    message: trimmed,
+                    history: chatHistory.slice(0, -1),
+                }),
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                appendChatMessage('assistant', simpleMarkdown(data.content), true);
+                chatHistory.push({ role: 'assistant', content: data.content });
+            } else {
+                appendChatMessage('assistant', data.error || 'Something went wrong. Please try again.');
+            }
+        } catch (err) {
+            appendChatMessage('assistant', 'Could not reach the assistant. Please try again.');
+        } finally {
+            setChatBusy(false);
+            chatInput.focus();
+        }
+    }
+
+    appendChatMessage(
+        'assistant',
+        simpleMarkdown(
+            'Welcome! I can help with **{{ city_departure }} → {{ city_arrival }}** on **{{ flight.flight_date }}** ' +
+            '(from **${{ flight.price }}**, {{ trip.stay_days }}-day stay). Ask about cheaper dates, hotels, visa, or your itinerary.'
+        ),
+        true
+    );
+
+    chatForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        sendChatMessage(chatInput.value);
+    });
+
+    chatInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            chatForm.requestSubmit();
+        }
+    });
+
+    chatSuggestions.querySelectorAll('.trip-chat-suggestion').forEach(btn => {
+        btn.addEventListener('click', () => sendChatMessage(btn.dataset.prompt));
+    });
 
     document.querySelectorAll('.ai-action-btn').forEach(btn => {
         btn.addEventListener('click', async function() {

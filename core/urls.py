@@ -24,4 +24,9 @@ urlpatterns = [
         views.aiAction,
         name='ai_action',
     ),
+    path(
+        'search/flight/<int:search_id>/<str:flight_date>/chat/',
+        views.tripChat,
+        name='trip_chat',
+    ),
 ]

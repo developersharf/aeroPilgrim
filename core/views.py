@@ -15,6 +15,7 @@ from .models import Search
 from .forms import SearchForm, RegistrationForm, LoginForm
 from .services.flight_api import FlightAPIError, extract_flight_days, get_flight_data
 from .services.ai_service import AI_ACTIONS, generate_ai_response
+from .services.chat_service import build_trip_chat_context, generate_chat_response
 from .services.rate_limit import (
     find_cached_search,
     ip_can_call_api,
@@ -268,6 +269,41 @@ def aiAction(request, search_id, flight_date):
         "label": AI_ACTIONS[action]["label"],
         "content": content,
     })
+
+
+@login_required(login_url='login')
+@require_POST
+def tripChat(request, search_id, flight_date):
+    """Conversational assistant with trip data loaded from the database."""
+    search = get_object_or_404(Search, pk=search_id)
+    flight = _get_flight_from_search(search, flight_date)
+
+    if not flight:
+        return JsonResponse({"success": False, "error": "Flight not found."}, status=404)
+
+    try:
+        body = json.loads(request.body)
+        message = (body.get("message") or "").strip()
+        history = body.get("history") or []
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
+
+    if not message:
+        return JsonResponse({"success": False, "error": "Message is required."}, status=400)
+
+    context = build_trip_chat_context(search, flight)
+    content = generate_chat_response(message, context, history)
+
+    return JsonResponse({
+        "success": True,
+        "content": content,
+        "trip_context": {
+            "route": context["route"],
+            "departure_date": context["selected_departure_date"],
+            "price_usd": context["selected_price_usd"],
+        },
+    })
+
 
 def _check_bot_api_key(request):
     """Simple shared-secret check so only your n8n workflow can call this."""
