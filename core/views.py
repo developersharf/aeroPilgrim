@@ -5,6 +5,10 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from datetime import timedelta, datetime
+
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET
 import json
 
 from .models import Search
@@ -203,6 +207,8 @@ def searchResults(request):
     })
 
 
+
+
 @login_required(login_url='login')
 def flightDetail(request, search_id, flight_date):
     """Show full details for a selected flight date"""
@@ -228,6 +234,10 @@ def flightDetail(request, search_id, flight_date):
         "city_departure": trip["city_departure_label"],
         "city_arrival": trip["city_arrival_label"],
     })
+
+
+
+
 
 
 @login_required(login_url='login')
@@ -257,4 +267,87 @@ def aiAction(request, search_id, flight_date):
         "action": action,
         "label": AI_ACTIONS[action]["label"],
         "content": content,
+    })
+
+def _check_bot_api_key(request):
+    """Simple shared-secret check so only your n8n workflow can call this."""
+    sent_key = request.headers.get("X-Bot-Api-Key")
+    return sent_key and sent_key == settings.BOT_API_KEY
+
+#this is the bot search endpoint
+@csrf_exempt
+@require_GET
+def botSearch(request):
+    """
+    JSON search endpoint for the n8n chatbot.
+    No login required — protected by a shared API key header instead.
+
+    GET /api/bot-search/?from_city=DAC&to_city=JED&stay_days=10&timespan_to_search=30
+    Header: X-Bot-Api-Key: <your secret>
+    """
+    if not _check_bot_api_key(request):
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+
+    city_departure = request.GET.get("from_city")
+    city_arrival = request.GET.get("to_city")
+
+    if not city_departure or not city_arrival:
+        return JsonResponse(
+            {"error": "from_city and to_city are required"}, status=400
+        )
+
+    try:
+        stay_days = int(request.GET.get("stay_days", 7))
+        timespan = int(request.GET.get("timespan_to_search", 30))
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "stay_days and timespan_to_search must be integers"}, status=400)
+
+    search = find_cached_search(city_departure, city_arrival, stay_days, timespan)
+
+    if search:
+        data = search.api_response
+    elif ip_can_call_api(request):
+        data = get_flight_data(city_departure, city_arrival)
+
+        Search.objects.filter(
+            city_departure=city_departure,
+            city_arrival=city_arrival,
+            stay_days=stay_days,
+            timespan_to_search=timespan,
+        ).delete()
+
+        search = Search.objects.create(
+            city_departure=city_departure,
+            city_arrival=city_arrival,
+            stay_days=stay_days,
+            timespan_to_search=timespan,
+            api_response=data,
+        )
+        record_api_call(request)
+    else:
+        return JsonResponse({
+            "error": "rate_limit_exceeded",
+            "message": "Search limit reached for this route. Try again later or use a previously searched route.",
+        }, status=429)
+
+    days = data["data"]["flights"]["days"]
+    top_results = [_normalize_flight(d) for d in sorted(days, key=lambda x: x["price"])[:5]]
+
+    results = []
+    for flight in top_results:
+        depart = datetime.strptime(flight["flight_date"], "%Y-%m-%d").date()
+        return_date = depart + timedelta(days=stay_days)
+        results.append({
+            "date": flight["flight_date"],
+            "price": flight["price"],
+            "currency": "USD",
+            "return_date": str(return_date),
+        })
+
+    return JsonResponse({
+        "search_id": search.id,
+        "from_city": _city_label(city_departure),
+        "to_city": _city_label(city_arrival),
+        "stay_days": stay_days,
+        "results": results,
     })

@@ -18,6 +18,7 @@ urlpatterns = [
         views.flightDetail,
         name='flight_detail',
     ),
+    path("api/bot-search/", views.botSearch, name="bot_search"),
     path(
         'search/flight/<int:search_id>/<str:flight_date>/ai/',
         views.aiAction,
