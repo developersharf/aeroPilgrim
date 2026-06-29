@@ -282,6 +282,241 @@ body.site-theme {
     font-size: 0.8125rem;
 }
 
+/* Form inputs */
+.apple-input {
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    border-radius: 0.625rem;
+    background: rgba(255, 255, 255, 0.92);
+    color: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    font-size: 0.875rem;
+    font-family: var(--font-primary);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.apple-input:focus {
+    outline: none;
+    background: #fff;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25);
+}
+
+.apple-input::placeholder {
+    color: rgba(15, 23, 42, 0.45);
+}
+
+select.apple-input {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%230f172a'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.25rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.apple-btn--sm {
+    width: auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+}
+
+/* Force readable light text across all main content */
+.site-main,
+.site-main p,
+.site-main span,
+.site-main label,
+.site-main li,
+.site-main div,
+.site-main h1,
+.site-main h2,
+.site-main h3,
+.site-main h4,
+.site-main h5,
+.site-main h6,
+.site-main strong,
+.site-main a:not(.apple-btn):not(.btn-white) {
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.site-main .text-muted {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.site-main .text-strong {
+    color: #fff !important;
+}
+
+.glass-card .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Card title (icon + label, optional trailing badge) */
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.card-title i {
+    color: #0ea5e9;
+    font-size: 1.15rem;
+}
+
+/* Form layout for dashboard / search panels */
+.uf-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem 1rem;
+}
+
+.uf-form--inline {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    gap: 0.6rem;
+}
+
+.uf-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.uf-field > .apple-input,
+.uf-field > input,
+.uf-field > select,
+.uf-field > textarea {
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+}
+
+.uf-field label {
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+    line-height: 1.35;
+}
+
+.uf-field--full {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.uf-field--grow {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.uf-field label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.75);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.uf-range {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.uf-range .apple-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.uf-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    user-select: none;
+}
+
+.uf-toggle input[type="checkbox"] {
+    width: 1.05rem;
+    height: 1.05rem;
+    accent-color: #0ea5e9;
+    cursor: pointer;
+}
+
+/* Lists (history + watchlist) */
+.uf-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.uf-list .empty {
+    padding: 0.75rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Feature list (pricing) */
+.uf-feature-list {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.92);
+    list-style: none;
+    padding: 0;
+}
+
+.uf-feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+}
+
+.uf-feature-list i {
+    color: #4ade80;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+}
+
+/* Strong ring highlight (premium recommended card) */
+.ring-2 {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+.glass-card.ring-2 {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35), 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 640px) {
+    .uf-form {
+        grid-template-columns: 1fr;
+    }
+    .uf-form--inline {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Keep button text readable — override white link styles in glass/page areas */
 .glass-card a.btn-white,
 .glass-card .btn-white,

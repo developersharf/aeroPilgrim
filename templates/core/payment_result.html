@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Result - UmrahFly{% endblock %}
+
+{% block content %}
+<div class="page-shell max-w-2xl mx-auto">
+    <div class="page-header text-center">
+        {% if pt.status == "success" %}
+            <h1>Payment successful</h1>
+            <p>You're now on the Premium plan — let's find your flights.</p>
+        {% elif pt.status == "cancelled" %}
+            <h1>Payment cancelled</h1>
+            <p>No charges were made. You can upgrade any time.</p>
+        {% else %}
+            <h1>Payment failed</h1>
+            <p>Something went wrong with this transaction. Please try again.</p>
+        {% endif %}
+    </div>
+
+    <div class="glass-card p-6 sm:p-8">
+        <h2 class="card-title">
+            {% if pt.status == "success" %}
+                <i class="ph ph-seal-check text-green-400"></i>
+                Upgrade confirmed
+                <span class="badge badge-low ml-auto">PREMIUM</span>
+            {% elif pt.status == "cancelled" %}
+                <i class="ph ph-info"></i>
+                No charge applied
+                <span class="badge badge-mid ml-auto">CANCELLED</span>
+            {% else %}
+                <i class="ph ph-warning text-red-400"></i>
+                Transaction error
+                <span class="badge badge-high ml-auto">FAILED</span>
+            {% endif %}
+        </h2>
+
+        <div class="glass-sm rounded-lg p-4 mt-4 text-sm space-y-3">
+            <div class="flex justify-between items-center">
+                <span class="text-muted">Transaction</span>
+                <span class="font-mono text-strong">{{ pt.tran_id }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-muted">Plan</span>
+                <span class="inline-flex items-center gap-1.5">
+                    {% if plan == "Premium" %}
+                        <i class="ph ph-crown text-yellow-300"></i>
+                    {% else %}
+                        <i class="ph ph-airplane"></i>
+                    {% endif %}
+                    {{ plan }} · {{ daily_quota }} searches/day
+                </span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-muted">Amount</span>
+                <strong class="text-strong">${{ pt.amount_usd }}</strong>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-muted">Status</span>
+                <strong class="text-strong">{{ pt.get_status_display }}</strong>
+            </div>
+        </div>
+
+        {% if pt.status == "success" %}
+            <div class="glass-sm rounded-lg p-4 mt-6 text-sm flex items-start gap-3">
+                <i class="ph ph-rocket-launch text-primary-300 text-lg mt-0.5"></i>
+                <div>
+                    <p class="text-strong">You're on Premium.</p>
+                    <p class="text-muted">Daily quota: <strong class="text-strong">{{ daily_quota }}</strong> live searches.
+                        Cached results and history reruns stay unlimited.</p>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="flex flex-col sm:flex-row gap-3 mt-6">
+            <a href="{% url 'dashboard' %}" class="apple-btn justify-center flex-1">
+                <i class="ph ph-gauge"></i>
+                Go to Dashboard
+            </a>
+            {% if pt.status == "success" %}
+                <a href="{% url 'home' %}" class="btn-white btn-white--sm justify-center flex-1">
+                    <i class="ph ph-airplane-takeoff"></i>
+                    Start Searching
+                </a>
+            {% else %}
+                <a href="{% url 'pricing' %}" class="btn-white btn-white--sm justify-center flex-1">
+                    <i class="ph ph-crown"></i>
+                    Back to Pricing
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

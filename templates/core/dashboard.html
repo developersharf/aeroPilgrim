@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - UmrahFly{% endblock %}
+
+{% block content %}
+<div class="page-shell max-w-7xl"
+     data-search-url="{% url 'api_search' %}"
+     data-search-async-url="{% url 'api_search_async' %}"
+     data-search-status-url-template="{% url 'api_search_status' 0 %}"
+     data-history-url="{% url 'api_history' %}"
+     data-history-rerun-url-template="{% url 'api_history_rerun' 0 %}"
+     data-watchlist-url="{% url 'api_watchlist_list' %}"
+     data-watchlist-create-url="{% url 'api_watchlist_create' %}"
+     data-watchlist-update-url-template="{% url 'api_watchlist_update' 0 %}"
+     data-watchlist-delete-url-template="{% url 'api_watchlist_delete' 0 %}"
+     data-pricing-url="{% url 'pricing' %}"
+     data-flight-detail-url-template="{% url 'flight_detail' 0 'YYYY-MM-DD' %}">
+
+    <header class="page-header">
+        <h1>Welcome back, {{ user.username }}</h1>
+        <p>Run searches, manage watchlists, and track your quota — all in one place.</p>
+    </header>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="glass-card p-6">
+            <h2 class="card-title">
+                <i class="ph ph-gauge"></i>
+                Quota
+                {% if is_premium %}
+                    <span class="badge badge-low ml-auto">PRO</span>
+                {% endif %}
+            </h2>
+            <div class="space-y-3">
+                <div class="flex justify-between items-end">
+                    <span class="text-muted">Used today</span>
+                    <span class="font-mono text-2xl font-700 text-strong">
+                        <span id="quotaUsed">{{ quota_used }}</span> / {{ quota_total }}
+                    </span>
+                </div>
+                <div class="w-full h-3 rounded-full bg-white/10 overflow-hidden">
+                    <div id="quotaBar" class="h-full bg-primary-500 transition-all"
+                         style="width: {% widthratio quota_used quota_total 100 %}%"></div>
+                </div>
+                <p class="text-xs text-muted">
+                    {% if is_premium %}
+                        Premium plan · resets at midnight UTC.
+                    {% else %}
+                        Free plan · resets at midnight UTC.
+                        <a href="{% url 'pricing' %}" class="text-primary-300 hover:underline">Upgrade for more.</a>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="glass-card p-6 lg:col-span-2">
+            <h2 class="card-title">
+                <i class="ph ph-airplane-takeoff"></i>
+                New search
+                {% if not is_premium %}
+                    <a href="{% url 'pricing' %}" class="badge badge-mid ml-auto">
+                        <i class="ph ph-crown"></i> Free plan
+                    </a>
+                {% endif %}
+            </h2>
+            <form id="searchForm" class="uf-form">
+                <div class="uf-field">
+                    <label for="city_departure">From</label>
+                    <select name="city_departure" id="city_departure" class="apple-input" required>
+                        <option value="DAC">Dhaka (DAC)</option>
+                        <option value="CGP">Chattogram (CGP)</option>
+                        <option value="ZYL">Sylhet (ZYL)</option>
+                    </select>
+                </div>
+                <div class="uf-field">
+                    <label for="city_arrival">To</label>
+                    <select name="city_arrival" id="city_arrival" class="apple-input" required>
+                        <option value="JED">Jeddah (JED)</option>
+                        <option value="MED">Medina (MED)</option>
+                    </select>
+                </div>
+                <div class="uf-field">
+                    <label for="date_departure">Departure</label>
+                    <input type="date" name="date_departure" id="date_departure" class="apple-input" required />
+                </div>
+                <div class="uf-field">
+                    <label for="days">Stay (days)</label>
+                    <input type="number" name="days" id="days" min="1" max="60" value="7" class="apple-input" required />
+                </div>
+                <div class="uf-field">
+                    <label for="flex_days">Flex days <span class="text-muted">(±0-3)</span></label>
+                    <select name="flex_days" id="flex_days" class="apple-input">
+                        <option value="0">Exact</option>
+                        <option value="1" selected>±1 day</option>
+                        <option value="2">±2 days</option>
+                        <option value="3">±3 days</option>
+                    </select>
+                </div>
+                <div class="uf-field">
+                    <label>Stay range</label>
+                    <div class="uf-range">
+                        <input type="number" name="stay_min" min="1" max="60" value="5" class="apple-input" aria-label="Minimum stay" />
+                        <span class="text-muted">–</span>
+                        <input type="number" name="stay_max" min="1" max="60" value="14" class="apple-input" aria-label="Maximum stay" />
+                    </div>
+                </div>
+                <div class="uf-field uf-field--full">
+                    <label class="uf-toggle">
+                        <input type="checkbox" name="async_mode" id="asyncMode" />
+                        <span>Run in background</span>
+                    </label>
+                    <button type="submit" class="apple-btn">
+                        <i class="ph ph-magnifying-glass"></i>
+                        Search flights
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section id="searchResultsSection" class="glass-card p-6 mb-8 hidden">
+        <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
+            <h2 class="card-title mb-0">
+                <i class="ph ph-chart-line-up"></i>
+                <span id="searchResultsTitle">Results</span>
+            </h2>
+            <div id="searchResultsMeta" class="text-xs text-muted font-mono"></div>
+        </div>
+        <div id="searchResultsBody" class="space-y-3"></div>
+    </section>
+
+    <section class="glass-card p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="card-title mb-0">
+                <i class="ph ph-clock-counter-clockwise"></i>
+                Recent searches
+            </h2>
+            <button id="refreshHistory" class="apple-btn apple-btn--sm">
+                <i class="ph ph-arrow-clockwise"></i>
+                Refresh
+            </button>
+        </div>
+        <div id="historyList" class="uf-list">
+            <div class="empty">Loading…</div>
+        </div>
+    </section>
+
+    <section class="glass-card p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="card-title mb-0">
+                <i class="ph ph-bookmarks"></i>
+                Watchlists
+            </h2>
+            <button id="toggleWatchForm" class="apple-btn apple-btn--sm">
+                <i class="ph ph-plus"></i>
+                New watchlist
+            </button>
+        </div>
+        <form id="watchForm" class="uf-form uf-form--inline hidden mb-4">
+            <input name="name" placeholder="Name (e.g. Ramadan peak)" class="apple-input uf-field--grow" required />
+            <select name="city_departure" class="apple-input" aria-label="Departure city">
+                <option value="DAC">DAC</option><option value="CGP">CGP</option><option value="ZYL">ZYL</option>
+            </select>
+            <select name="city_arrival" class="apple-input" aria-label="Arrival city">
+                <option value="JED">JED</option><option value="MED">MED</option>
+            </select>
+            <button type="submit" class="apple-btn apple-btn--sm">
+                <i class="ph ph-check"></i>
+                Save
+            </button>
+        </form>
+        <div id="watchlistList" class="uf-list">
+            <div class="empty">Loading…</div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

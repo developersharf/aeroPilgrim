@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Demo Payment Gateway - UmrahFly{% endblock %}
+
+{% block content %}
+<div class="page-shell max-w-xl mx-auto">
+    <div class="page-header text-center">
+        <h1>Confirm upgrade</h1>
+        <p>Review the charge and complete the demo payment — no real card is needed.</p>
+    </div>
+
+    <div class="glass-card p-6 sm:p-8">
+        <h2 class="card-title">
+            <i class="ph ph-credit-card"></i>
+            Demo SSLCommerz Gateway
+            <span class="badge badge-mid ml-auto">SANDBOX</span>
+        </h2>
+
+        <div class="glass-sm rounded-lg p-4 mt-4 text-sm space-y-3">
+            <div class="flex justify-between items-center">
+                <span class="text-muted">Transaction ID</span>
+                <span class="font-mono text-strong">{{ pt.tran_id }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-muted">Plan</span>
+                <span class="inline-flex items-center gap-1.5">
+                    <i class="ph ph-crown text-yellow-300"></i>
+                    Premium · 30 days
+                </span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-muted">Daily quota</span>
+                <strong class="text-strong">5 live searches</strong>
+            </div>
+            <div class="divider my-1"></div>
+            <div class="flex justify-between items-end">
+                <span class="text-muted">Amount due</span>
+                <span class="text-strong text-2xl font-700 font-mono">${{ pt.amount_usd }}</span>
+            </div>
+        </div>
+
+        <ul class="uf-feature-list mt-6">
+            <li><i class="ph ph-check-circle"></i><span><strong>5</strong> live flight searches per day</span></li>
+            <li><i class="ph ph-database"></i><span>Unlimited cached + history reruns</span></li>
+            <li><i class="ph ph-bell"></i><span>Watchlist notify-ready flag</span></li>
+            <li><i class="ph ph-arrows-left-right"></i><span>Priority access to flexible ±3 searches</span></li>
+        </ul>
+
+        <form method="POST" action="{% url 'payment_demo_callback' pt.tran_id %}" class="mt-6 space-y-3">
+            {% csrf_token %}
+            <button type="submit" name="action" value="pay"
+                    class="apple-btn w-full justify-center">
+                <i class="ph ph-check-circle"></i>
+                Pay ${{ pt.amount_usd }}
+            </button>
+            <button type="submit" name="action" value="cancel"
+                    class="btn-white btn-white--sm w-full justify-center">
+                <i class="ph ph-x"></i>
+                Cancel
+            </button>
+        </form>
+
+        <div class="glass-sm rounded-lg p-3 mt-6 text-xs text-muted flex items-start gap-2">
+            <i class="ph ph-shield-check text-base text-green-400 mt-0.5"></i>
+            <span>This page never leaves our servers. It mimics the SSLCommerz
+                redirect flow so we can upgrade your subscription safely.</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

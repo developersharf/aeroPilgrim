@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing - UmrahFly{% endblock %}
+
+{% block content %}
+<div class="page-shell max-w-5xl">
+    <div class="page-header text-center">
+        <h1>Choose your plan</h1>
+        <p>More searches, flexible windows, and history reruns.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="glass-card p-6 sm:p-8 {% if not is_premium %}ring-2 ring-white/30{% endif %}">
+            <div class="flex items-center justify-between gap-3 mb-2">
+                <h2 class="text-2xl font-700">Free</h2>
+                <span class="badge {% if not is_premium %}badge-low{% else %}badge-mid{% endif %}">
+                    {% if not is_premium %}Current plan{% else %}Available{% endif %}
+                </span>
+            </div>
+            <p class="text-muted text-sm">For occasional pilgrims.</p>
+
+            <p class="text-5xl font-700 mt-6 text-strong">$0</p>
+            <p class="text-sm text-muted">Forever, no card needed.</p>
+
+            <ul class="uf-feature-list">
+                <li><i class="ph ph-check-circle"></i><span><strong>1</strong> live flight search per day</span></li>
+                <li><i class="ph ph-database"></i><span>Unlimited cached searches</span></li>
+                <li><i class="ph ph-clock-counter-clockwise"></i><span>Save searches & watchlists</span></li>
+                <li><i class="ph ph-robot"></i><span>AI trip actions on every detail page</span></li>
+            </ul>
+
+            <div class="glass-sm rounded-lg p-4 mt-6 text-sm flex items-center gap-2">
+                <i class="ph ph-info text-white/70"></i>
+                <span>Used today: <strong class="text-strong">{{ used_today }}</strong> / {{ daily_quota }} (resets in 24h)</span>
+            </div>
+        </div>
+
+        <div class="relative">
+            <div class="absolute -top-3 right-4 z-10 px-3 py-1 rounded-full bg-yellow-400 text-yellow-900 text-xs font-600 inline-flex items-center gap-1 shadow-lg">
+                <i class="ph ph-star"></i> RECOMMENDED
+            </div>
+            <div class="glass-card p-6 sm:p-8 h-full {% if is_premium %}ring-2 ring-yellow-300/50{% endif %}">
+                <div class="flex items-center justify-between gap-3 mb-2">
+                    <h2 class="text-2xl font-700 inline-flex items-center gap-2">
+                        <i class="ph ph-crown text-yellow-300"></i>
+                        Premium
+                    </h2>
+                    <span class="badge {% if is_premium %}badge-low{% else %}badge-mid{% endif %}">
+                        {% if is_premium %}Active{% else %}Upgrade{% endif %}
+                    </span>
+                </div>
+            <p class="text-muted text-sm">For repeated planners and agents.</p>
+
+            <p class="text-5xl font-700 mt-6 text-strong">${{ price_usd }}</p>
+            <p class="text-sm text-muted">One-time demo payment · 30 days validity.</p>
+
+            <ul class="uf-feature-list">
+                <li><i class="ph ph-check-circle"></i><span><strong>5</strong> live flight searches per day</span></li>
+                <li><i class="ph ph-database"></i><span>Unlimited cached + history reruns</span></li>
+                <li><i class="ph ph-bell"></i><span>Watchlist notify-ready flag</span></li>
+                <li><i class="ph ph-arrows-left-right"></i><span>Priority access to flexible ±3 searches</span></li>
+            </ul>
+
+            {% if is_premium %}
+                <div class="glass-sm rounded-lg p-4 mt-6 text-sm flex items-center gap-2">
+                    <i class="ph ph-seal-check text-green-400"></i>
+                    <span>You're on Premium. Daily quota: <strong class="text-strong">{{ daily_quota }}</strong>.</span>
+                </div>
+            {% else %}
+                <form method="POST" action="{% url 'upgrade_start' %}" class="mt-6">
+                    {% csrf_token %}
+                    <button type="submit" class="apple-btn w-full">
+                        <i class="ph ph-crown"></i>
+                        Upgrade to Premium
+                    </button>
+                </form>
+                <p class="text-xs text-muted text-center mt-3">Demo mode — no real card required.</p>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-sm rounded-lg p-4 mt-8 text-sm text-muted text-center">
+        Need more? Contact us at
+        <a href="mailto:support@umrahfly.app" class="text-strong hover:underline">support@umrahfly.app</a>.
+    </div>
+</div>
+{% endblock %}
